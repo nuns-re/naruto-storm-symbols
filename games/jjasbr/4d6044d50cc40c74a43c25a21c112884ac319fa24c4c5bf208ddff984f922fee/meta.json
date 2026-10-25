@@ -1,16 +1,8 @@
 {
- "label": "JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe)",
- "game": "jjasbr",
- "exe_sha256": "4d6044d50cc40c74a43c25a21c112884ac319fa24c4c5bf208ddff984f922fee",
- "image_base": "0x140000000",
- "pe_timestamp": 1704780675,
- "functions_in_exe": 73928,
- "named": 596,
- "named_high": 591,
- "named_medium": 5,
- "named_low": 0,
- "self_named": 5,
- "generated": "2026-10-18",
- "address_kind": "RVA (add image_base for VA)",
- "note": "Partial set. high = full BSim scan of all 73,928 functions against four reference builds (Storm 4 debug, Storm 1, Connections, Switch Trilogy), kept only where 2+ independent reference builds agree on the same name with similarity >=0.9 and no competing name; names landing on more than one function were dropped. medium = method-name string xrefs inside this exe. No JoJo-specific game names; engine, middleware and library names only."
+  "game": "jjasbr",
+  "label": "JoJo's Bizarre Adventure: All-Star Battle R",
+  "exe_sha256": "4d6044d50cc40c74a43c25a21c112884ac319fa24c4c5bf208ddff984f922fee",
+  "image_base": "0x140000000",
+  "format": "PE32+",
+  "generated": "2026-10-18"
 }
