@@ -1,8 +1,16 @@
 {
-  "game": "jjasbr",
-  "label": "JoJo's Bizarre Adventure: All-Star Battle R",
-  "exe_sha256": "4d6044d50cc40c74a43c25a21c112884ac319fa24c4c5bf208ddff984f922fee",
-  "image_base": "0x140000000",
-  "format": "PE32+",
-  "generated": "2026-10-18"
+ "label": "JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe)",
+ "game": "jjasbr",
+ "exe_sha256": "4d6044d50cc40c74a43c25a21c112884ac319fa24c4c5bf208ddff984f922fee",
+ "image_base": "0x140000000",
+ "pe_timestamp": 1704780675,
+ "functions_in_exe": 73928,
+ "named": 4008,
+ "named_high": 4008,
+ "named_medium": 0,
+ "named_low": 0,
+ "self_named": 139,
+ "generated": "2026-10-26",
+ "address_kind": "RVA (add image_base for VA)",
+ "note": "Partial set, high confidence only. Self-named: task-registration and constructor strings in this exe. Others: matched against eight Storm reference builds (Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections, Switch Trilogy) by unique shared strings, BSim and call graph, then voted; a name is kept only if it rests on a shared string, BSim agreement across 2+ builds, or a BSim match on a function of 64+ bytes whose class is shared engine/library code or exists in this exe's own source-file list. Names of Naruto-only classes, constructors/destructors without a string anchor, and names from libraries this exe does not link (Bullet, tolua++, libc++) are dropped. Blind review of an 80-name held-out sample: 90% correct."
 }

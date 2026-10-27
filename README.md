@@ -1,12 +1,12 @@
 # CyberConnect2 game function names for modders
 
 Function names for CyberConnect2's NARUTO SHIPPUDEN: Ultimate Ninja STORM games on PC (Storm 1, 2, 3 HD, 3 Full
-Burst, Revolution, 4, Connections), the Xbox 360 retail Storm Generations, and a small engine-only sample from
+Burst, Revolution, 4, Connections), the Xbox 360 retail Storm Generations, and a partial, high-confidence set for
 JoJo's Bizarre Adventure: All-Star Battle R. Load them into Ghidra, IDA, Binary Ninja, x64dbg, WinDbg or Visual
 Studio, and `FUN_1401a2b30` becomes `ccPlayer::Update`.
 
 The Storm builds contain 140,038 names across 10 builds, and JoJo's Bizarre Adventure: All-Star Battle R
-adds 596 more, for **140,634 across 11 builds**. The Storm names were recovered by:
+adds 4,008 more, for **144,046 across 11 builds**. The Storm names were recovered by:
 
 - matching against the Nintendo Switch *Storm Trilogy* build, which shipped with C++ symbols;
 - bridging those symbols through the stripped Switch builds of Storm 4 and Connections (same compiler) to the PC
@@ -18,9 +18,9 @@ adds 596 more, for **140,634 across 11 builds**. The Storm names were recovered 
   runtime, then matching against those;
 - RTTI, vtables and export tables.
 
-One further build was named by a different route: a later, unrelated CyberConnect2 title, *JoJo's Bizarre
-Adventure: All-Star Battle R*, was matched against the Storm builds with BSim, keeping a name only where two or
-more of the reference builds agree on it.
+One further build was named by a different route: a later CyberConnect2 title on the same engine, *JoJo's Bizarre
+Adventure: All-Star Battle R*, was named from its own task-registration strings and by matching it against eight
+Storm builds, keeping only names whose evidence measured about 90% correct in a blind review (see below).
 
 The names are CyberConnect2's own, taken from those sources. Nothing is invented, and placeholder names
 (`FUN_...`) are never emitted.
@@ -60,18 +60,30 @@ be wrong at almost every address, so the scripts refuse to apply them.
 | Storm 4 PC release (NSUNS4.exe) | `storm4/147e52a3e0d7…` | 61,105 | 14,407 | 24% | 7,526 | 4,525 | 2,356 | 0 |
 | Storm Connections PC (NSUNSC.exe) | `connections/cecf0405b5ac…` | 105,435 | 18,932 | 18% | 8,700 | 7,246 | 2,986 | 380 |
 | Storm Generations Xbox 360 retail (default.xex, USA) | `generations/0d09e0b47270…` | 21,633 | 3,160 | 15% | 1,239 | 1,267 | 654 | 10 |
-| JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe) | `jjasbr/4d6044d50cc4…` | 73,928 | 596 | 0.8% | 591 | 5 | 0 | 5 |
+| JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe) | `jjasbr/4d6044d50cc4…` | 73,928 | 4,008 | 5.4% | 4,008 | 0 | 0 | 139 |
 
 *Self-named* means the exe itself contains the function's name string, so it is the official name. The full
 SHA-256 of each build is its folder name and is also in its `meta.json`.
 
-The JJASBR entry is intentionally partial and engine-only. All 73,928 functions were matched with BSim
-against four reference builds — Storm 4 debug, Storm 1, Connections and the Switch Trilogy; only names that
-**2 or more independent reference builds agree on** (similarity ≥ 0.9, no competing name, target ≥ 32 bytes)
-are kept, as high confidence. Any name landing on more than one function is dropped, the same rule the
-package already applies to vtable-derived names, because the repeats here are tables of identical stubs. No
-JoJo-specific game code is named: `cc*` framework, `nucc` engine, CRIWARE, Lua, Bullet, Recast/Detour,
-NintendoWare (`numm`/`nus3`), `mm*` middleware and curl symbols only.
+The JJASBR entry is partial and high-confidence only. JJASBR has no RTTI for its own classes, so the vtable
+route used for Connections is not available. The names come from two sources:
+
+- **Its own strings (139, self-named).** The game registers per-frame tasks by name with a function pointer
+  (`RegisterTask(obj, "ccPlayer::StoreDamage", prio, mask, obj, &fn)`), and its UI classes pass their own
+  `"<Class>::Ctrl"` / `"<Class>::Draw"` task names to their constructors, which name both. These cover
+  JoJo's own code too (`ccUiTitle::ccUiTitle`, `ccPlayerExclude::CalculateCtrl`).
+- **Matching against eight Storm builds (3,869).** Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections
+  and the Switch Trilogy, by unique shared strings, BSim and call-graph position, then a vote across games. A
+  name is kept only if it rests on a shared string, on BSim similarity ≥ 0.9 with the same name in 2+ builds,
+  or on a BSim match of a function of 64+ bytes whose class is shared engine or library code, or exists in
+  JJASBR's own source-file list.
+
+Both games pass `__FILE__` to their allocator, so each exe lists its source files; paths under `system\` are
+the shared engine (`nucc`, `ccFramework`). Names of classes that exist only in Storm game code are dropped, as are
+constructors and destructors without a string anchor (sibling constructors compile to identical code), names
+from libraries JJASBR does not link (Bullet, tolua++) and libc++ spellings from the Switch build. Any name
+landing on more than one function is dropped. Most names are CRIWARE, `nucc` engine, `cc*` framework, Lua,
+curl, Recast/Detour and NintendoWare (`numm`/`nus3`).
 
 ## Confidence: what gets applied how
 
@@ -189,7 +201,10 @@ Cheat Engine, ReClass, radare2/rizin, Frida scripts, your own tools, and also th
 |---|---|
 | `selfname` | the exe contains the function's own name string (official) |
 | `switch-string` / `switch-bsim` / `switch-bsim+neighbours` / `switch-callgraph` | matched to the Switch Trilogy build by unique shared strings, Ghidra BSim similarity, BSim backed by matched neighbours, or call-graph position |
-| `nx1-…` / `nx4-…` / `nxc-…` (for example `nx1-bsim`, `nx4-bsim`) | in the Storm builds: Switch Trilogy symbols matched onto a stripped Switch build of Storm 4 (`nx4`, EUR update v196608) or Connections (`nxc`, update v65536), arm64 with the same compiler, then carried to that game's PC build by BSim, strings or call graph. In the JJASBR set the tag names the reference build the name came from — `nx1` Storm 1, `nx4` Storm 4 debug, `nxc` Connections — with `switch-bsim` for the Switch Trilogy |
+| `nx1-…` / `nx4-…` / `nxc-…` (for example `nx1-bsim`, `nx4-bsim`) | in the Storm builds: Switch Trilogy symbols matched onto a stripped Switch build of Storm 4 (`nx4`, EUR update v196608) or Connections (`nxc`, update v65536), arm64 with the same compiler, then carried to that game's PC build by BSim, strings or call graph |
+| `register-task` / `register-ctor` (JJASBR) | the exe registers the function as a task under this name, or the function is the constructor its callers hand their own `"<Class>::Ctrl"`/`"<Class>::Draw"` task names (official) |
+| `<ref>-string` / `<ref>-bsim` / `<ref>-similar` / `<ref>-callgraph` (JJASBR) | matched to reference build `<ref>` — `s1`, `s2`, `s3hd`, `s4` (release), `s4d` (debug 1.06), `rev`, `conn`, `switch` — by shared unique string, BSim, call-graph similarity voting or call-graph position; `evidence` holds the reference address. One row lists every build that agreed; `sources` counts them |
+| `bsim-consensus` (JJASBR) | BSim similarity ≥ 0.9 to functions with the same name in 2+ reference builds, and no competing name |
 | `mobile-symbol` | the Storm 1 mobile (Android arm64) build's exported C++ symbols, carried to the PC builds by strings, BSim or call-graph position |
 | `vtable` | virtual function: the PC vtable lined up slot by slot with the Switch build's named vtable |
 | `rtti-vtable` | the same, with the PC vtable's class known from its own RTTI (Connections) |
@@ -218,9 +233,13 @@ Measured on known names (a share of names hidden, then re-derived):
 Across different games (for example Storm 3 code matched into Storm 4), string-only matches are weak (about 50%).
 So they are demoted unless another method agrees.
 
-The JJASBR set's cross-build consensus rule was spot-checked by hand rather than measured on hidden names: an
-independent decompilation review of a 12-function sample confirmed 7, rejected 3 and left 2 unproven, which is
-why single-build matches below the consensus bar were not merged.
+The JJASBR set was measured by blind review rather than hidden names: an AI reviewer compared each JJASBR
+function's decompilation with its reference function without seeing the method or confidence. On 150 sampled
+matches, string anchors were 100% correct, BSim consensus 97%, BSim 81% and call-graph position alone 57%; functions
+under 64 bytes were right 55% of the time. The keep rules above were set from that sample. On a separate held-out
+sample of 80 kept names, 72 were judged correct, 7 wrong and 1 unsure (90%); 2 of the 7 were right matches whose
+reference build carries a wrong name. About 2,750 lower-confidence JJASBR names (40–60% in review) are not
+published.
 
 ### Which libraries each build links
 
@@ -234,7 +253,7 @@ are matched only into builds that link the library.
 | Storm 3 Full Burst, Revolution, Generations | Lua, tolua++ |
 | Storm 4 (debug and release) | Lua, tolua++, Bullet, zlib 1.2.7, curl 7.29.0 |
 | Connections | Lua, tolua++, Bullet, zlib 1.2.7 + 1.2.11, curl 7.50.1 (Schannel) |
-| JoJo's All-Star Battle R | Lua, Bullet, curl — inferred from the names in its `functions.csv`; no version or constant check was recorded for this build |
+| JoJo's All-Star Battle R | Lua 5.1.4, zlib 1.2.11, curl 7.79.0-DEV, Recast/Detour, rapidxml, CRIWARE; no Bullet (no `1e18f` constant) and no tolua++ |
 
 ## Platform-call annotations (`platform-calls/`)
 
@@ -262,14 +281,14 @@ calls. See [platform-calls/README.md](platform-calls/README.md) for per-build co
 | Storm 1 / 2 / 3 HD PC (Trilogy) | 2017-03 | VS2013, x64 | `STORMT_PKG/narutoNext1,2,3` + `system/nucc` + `system/ccFramework` |
 | Storm 4 PC release | 2020-06 | VS2013 Update 5, x64 | `Update_SVN/narutoNext4_trunk` |
 | Storm Connections PC | 2026-09 patch | VS2019, x64 | `next5/…/trunk/narutoNext4` |
-| JoJo's All-Star Battle R PC | 2024-01 | not recorded in this repository (x64) | not recorded in this repository |
+| JoJo's All-Star Battle R PC | 2024-01 | VS2017 15.9 (linker 14.16), x64 | `asb_client/asb_prog/prog` + `asb_client/system/nucc` + `asb_client/system/ccframework` |
 | (name source) Switch Trilogy | 2020 | Clang, AArch64 | `narutoNext123`: games in namespaces ns1/ns2/ns3 |
 
 All of them share one engine (`nucc`, the NU Library) and one game framework (`ccFramework`, the `cc*` classes),
 under per-game code (`narutoNextN/prog`). Storm Generations is a branch of Storm 2's code, and Storm 3 branched from
 Storm 2 separately. Revolution is "3.5". The 2017 Trilogy remasters sit on the Storm 4-era engine, and Connections is
 a branch of Storm 4's trunk (its game code folder is still `narutoNext4`). JoJo's All-Star Battle R is a separate
-title that reuses the same engine and framework. Compiler and source-tree details for it are not recorded here.
+title that reuses the same engine and framework under its own source tree (`asb_client`).
 
 ## Contributing
 

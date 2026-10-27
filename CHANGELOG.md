@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.4.0 (2026-10-26)
+
+**JoJo's Bizarre Adventure: All-Star Battle R, second pass.** The `jjasbr` set is rebuilt from scratch: **4,008
+names** (5.4% of 73,928 functions), all high confidence, up from 596 (0.8%) in 1.3.0. It replaces the 5-row set
+committed after 1.3.1, which used the contribution format (no `methods` column, so the apply scripts could not
+read it) and named a task-registration function `ccBattleDirectionManager::Ctrl`.
+
+- **139 self-named** from the exe's own strings: 42 functions it registers as tasks by name
+  (`register-task`) and 97 UI constructors that receive their own `"<Class>::Ctrl"`/`"<Class>::Draw"` task names
+  (`register-ctor`). The "function references only its own name string" rule is not used for this build: its hits
+  were static initializers of type-info globals and a function that creates the named task, not the task itself.
+- **3,869 matched** against eight Storm builds (adds Storm 2, Storm 3 HD, Storm 4 release and Revolution to the
+  1.3.0 references) by shared strings, BSim and call graph, then voted. Methods read `<ref>-<how>` (e.g.
+  `conn-bsim`, `s3hd-string`) plus `bsim-consensus`; `sources` counts the agreeing builds.
+- Kept only where the evidence measured well in a blind review: a shared string, BSim consensus across 2+ builds,
+  or a BSim match on a function of 64+ bytes whose class is shared engine/library code or exists in JJASBR's own
+  source-file list. Dropped: Naruto-only classes, constructors/destructors without a string anchor, names from
+  libraries JJASBR does not link (Bullet, tolua++) and libc++ spellings.
+- Accuracy: 72 of 80 held-out names judged correct (90%) in a blind review; 2 of the 8 misses are wrong names in
+  the reference build, not wrong matches.
+- 465 of the 1.3.0 set's 596 names are kept unchanged and 1 is renamed. Of the rest, 40 fall below the published
+  bar, 35 are constructors/destructors without a string anchor, and 55 are Naruto-only classes, names that
+  collide with another function, or names the reference builds disagree on.
+- README: JJASBR's compiler (VS2017 15.9), source tree and linked libraries are now recorded.
+
+Totals: **140,038 names across the 10 Storm builds**, 144,046 with JoJo All-Star Battle R. Storm data is unchanged.
+
 ## 1.3.1 (2026-10-20)
 
 **Struct coverage.** The 88 common engine groups in `structs/` now cover every class that has at least 3 named methods
