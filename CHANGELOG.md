@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.4.1 (2026-10-31)
+
+**JoJo's Bizarre Adventure: All-Star Battle R, 109 more names.** The `jjasbr` set grows from 4,008 to **4,117 names**
+(5.6% of 73,928 functions), all high confidence. No existing name changes.
+
+- The new names are matches the 1.4.0 pass rated medium and left out. A second route reached each one with the same
+  name: Switch Trilogy to JoJo All-Star Battle R on Switch to JJASBR.exe. They carry the method `jojo-switch-bridge`.
+- Accuracy: 15 of 16 sampled names were judged correct in a blind review. The sample is small and both routes use the
+  Switch Trilogy's names, so the two are not fully independent.
+- Not published: confirmed low-confidence names (6 of 11 correct) and names only this route found (14 of 19 correct).
+- The JoJo Switch build has no game symbols of its own: it only served as a stepping stone between the two.
+
+Totals: **140,038 names across the 10 Storm builds**, 144,155 with JoJo All-Star Battle R. Storm data is unchanged.
+
 ## 1.4.0 (2026-10-26)
 
 **JoJo's Bizarre Adventure: All-Star Battle R, second pass.** The `jjasbr` set is rebuilt from scratch: **4,008

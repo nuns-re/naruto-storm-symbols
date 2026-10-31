@@ -5,12 +5,12 @@
  "image_base": "0x140000000",
  "pe_timestamp": 1704780675,
  "functions_in_exe": 73928,
- "named": 4008,
- "named_high": 4008,
+ "named": 4117,
+ "named_high": 4117,
  "named_medium": 0,
  "named_low": 0,
  "self_named": 139,
- "generated": "2026-10-26",
+ "generated": "2026-10-31",
  "address_kind": "RVA (add image_base for VA)",
- "note": "Partial set, high confidence only. Self-named: task-registration and constructor strings in this exe. Others: matched against eight Storm reference builds (Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections, Switch Trilogy) by unique shared strings, BSim and call graph, then voted; a name is kept only if it rests on a shared string, BSim agreement across 2+ builds, or a BSim match on a function of 64+ bytes whose class is shared engine/library code or exists in this exe's own source-file list. Names of Naruto-only classes, constructors/destructors without a string anchor, and names from libraries this exe does not link (Bullet, tolua++, libc++) are dropped. Blind review of an 80-name held-out sample: 90% correct."
+ "note": "Partial set, high confidence only. Self-named: task-registration and constructor strings in this exe. Others: matched against eight Storm reference builds (Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections, Switch Trilogy) by unique shared strings, BSim and call graph, then voted; a name is kept only if it rests on a shared string, BSim agreement across 2+ builds, or a BSim match on a function of 64+ bytes whose class is shared engine/library code or exists in this exe's own source-file list. Names of Naruto-only classes, constructors/destructors without a string anchor, and names from libraries this exe does not link (Bullet, tolua++, libc++) are dropped. Blind review of an 80-name held-out sample: 90% correct. 109 names were also confirmed through the JoJo Switch build (jojo-switch-bridge)."
 }
