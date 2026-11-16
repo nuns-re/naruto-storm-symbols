@@ -5,8 +5,8 @@ Burst, Revolution, 4, Connections), the Xbox 360 retail Storm Generations, and a
 JoJo's Bizarre Adventure: All-Star Battle R. Load them into Ghidra, IDA, Binary Ninja, x64dbg, WinDbg or Visual
 Studio, and `FUN_1401a2b30` becomes `ccPlayer::Update`.
 
-The Storm builds contain 140,038 names across 10 builds, and JoJo's Bizarre Adventure: All-Star Battle R
-adds 4,117 more, for **144,155 across 11 builds**. The Storm names were recovered by:
+The Storm builds contain 140,039 names across 10 builds, and JoJo's Bizarre Adventure: All-Star Battle R
+adds 4,117 more, for **144,156 across 11 builds**. The Storm names were recovered by:
 
 - matching against the Nintendo Switch *Storm Trilogy* build, which shipped with C++ symbols;
 - bridging those symbols through the stripped Switch builds of Storm 4 and Connections (same compiler) to the PC
@@ -50,7 +50,7 @@ be wrong at almost every address, so the scripts refuse to apply them.
 
 | Build | Folder (`games/…`) | Functions | Named | % | High | Medium | Low | Self-named |
 |---|---|---|---|---|---|---|---|---|
-| Storm 1 PC (NSUNS1.exe) | `storm1/10231093af9c…` | 25,921 | 13,585 | 52% | 6,787 | 5,398 | 1,400 | 0 |
+| Storm 1 PC (NSUNS1.exe) | `storm1/10231093af9c…` | 25,921 | 13,586 | 52% | 6,790 | 5,397 | 1,399 | 0 |
 | Storm 1 PC debug build (NSUNS1(debug).exe) | `storm1/d209f8d0c035…` | 30,939 | 13,652 | 44% | 6,576 | 5,134 | 1,942 | 298 |
 | Storm 2 PC (NSUNS2.exe) | `storm2/697488011750…` | 35,327 | 17,547 | 50% | 7,280 | 8,564 | 1,703 | 0 |
 | Storm 3 HD PC (NSUNS3.exe) | `storm3/55b726e94dad…` | 43,144 | 22,230 | 52% | 10,524 | 9,334 | 2,372 | 0 |

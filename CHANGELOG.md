@@ -1,5 +1,27 @@
 # Changelog
 
+## 1.4.2 (2026-11-16)
+
+**Storm 1 PC: seven Framework and nuccSys names corrected.** Hand-verified against the exe and the Switch Trilogy
+build. `Framework::Initialize` calls all of these in the same order as on Switch, and their bodies match the Switch
+functions.
+
+| Address | Was | Now |
+|---|---|---|
+| `0x53c4b0` | (no name; was `AddContentEventId` before 1.3.0) | `Framework::CommonSystemCallback` |
+| `0x53c490` | `ccFramework::Internal::NetThreadUtil::PiaDispatchThreaded` (high) | `Framework::AddResidentTaskPlatformDependent` |
+| `0x53a410` | a libc++ `std::__tree<…CreateSceneState*…>::__emplace_unique_key_args` (high) | `ccSceneManager::EntryCreateSceneCommand` |
+| `0x48d9b0` | `btAxisSweep3Internal<unsigned_short>::Handle::SetNextFree` (high) | `nuccSys::SetInputActiveUser` |
+| `0x48d9a0` | `spirv_cross::Compiler::get_remapped_declared_block_name` (high) | `nuccSys::SetFrameRate` |
+| `0x48d9d0` | `nuccSys::SetCaptureButton` (medium) | `nuccSys::SetPauseButton` |
+| `0x48d910` | `nuccSys::SetCaptureButton` (low) | `nuccSys::SetCaptureButton` (now high) |
+
+- All seven are now high confidence with method `manual`; `conflict_with` keeps the old name.
+- Most of the wrong names came from BSim and library matching on very short functions (two stores, or two calls),
+  where many unrelated functions look alike. `0x53a410` took its name from the call graph, one step off.
+- Storm 1: 13,586 names (6,790 high). Totals: **140,039 names across the 10 Storm builds**, 144,156 with JoJo
+  All-Star Battle R. Other builds are unchanged.
+
 ## 1.4.1 (2026-10-31)
 
 **JoJo's Bizarre Adventure: All-Star Battle R, 109 more names.** The `jjasbr` set grows from 4,008 to **4,117 names**

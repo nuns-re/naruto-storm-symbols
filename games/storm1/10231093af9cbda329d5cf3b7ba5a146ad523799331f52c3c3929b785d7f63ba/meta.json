@@ -5,11 +5,11 @@
  "image_base": "0x140000000",
  "pe_timestamp": 1490780806,
  "functions_in_exe": 25921,
- "named": 13585,
- "named_high": 6787,
- "named_medium": 5398,
- "named_low": 1400,
+ "named": 13586,
+ "named_high": 6790,
+ "named_medium": 5397,
+ "named_low": 1399,
  "self_named": 0,
- "generated": "2026-10-19",
+ "generated": "2026-11-16",
  "address_kind": "RVA (add image_base for VA)"
 }
