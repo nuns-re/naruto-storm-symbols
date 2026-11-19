@@ -1,5 +1,61 @@
 # Changelog
 
+## 1.4.3 (2026-11-19)
+
+**JoJo's Bizarre Adventure: All-Star Battle R: a community contribution, corrected allocator names and 20 new names.**
+The `jjasbr` set goes from 4,117 to **4,156 names** (4,142 high, 14 medium). Storm data is unchanged.
+
+**Contribution by ArcherOfLegend** (`contrib/jjasbr/4d6044d50cc4…/ArcherOfLegend.csv`, 34 rows). Each row is a function
+the exe registers as a task under its own name. All 34 registration strings were checked against the exe.
+- **20 new names, 10 high and 10 medium.** 19 of the rows ship at their own address. The 20th name is `0x41a51c`, the
+  body behind one row's jump stub. The `evidence` column credits ArcherOfLegend.
+- 8 of these are medium because a second blind review rated them lower. For 3 of them, the bodies are a few bytes long
+  and their BSim matches point at unrelated Storm 4 functions. The other 5 were only rated low. Two more are medium from
+  the start: an 8-byte body (`0x562888`) and the stub target `0x41a51c`.
+- 12 rows are not published:
+  - 10 name a `jmp [vtable+slot]` thunk (9 `ccPlayer::*`, plus `nuccAnm::Draw`). These name a vtable slot, not a body.
+  - 2 name a 5-byte jump stub. The two targets are named instead: `0x2374cc` by its own row, `0x41a51c` as above.
+- 3 rows were not taken. Their targets are generic vcall thunks shared by many unrelated places (`0x259af8`, `0x259b04`,
+  `0x277950`).
+- The contribution also found these wrong names in 1.4.2, now removed:
+
+| Address | Was | Why |
+|---|---|---|
+| `0x5894c`, `0x1706c0`, `0x1708b0`, `0x1b6a40` | four `cc*` names | static initializers: called only from the CRT initializer table, they build global strings and register `atexit` handlers. Nothing in 0x1000–0x1e0000 is named any more |
+| `0x6bf5e0` | `malloc` | the engine's own allocator entry (size, kind, file, line), not the CRT `malloc` |
+| `0x467ef0`, `0x5682fc`, `0x6620c4` | `ccSceneDemoState::ScreenCapture`, `ccSceneNetMatchingLeave::CtrlDialogDispCount`, `ccSignoutNotifyTask::Ctrl` | these register the task; the task bodies are `0x4686e0`, `0x568208` and `0x661cb0`, which now carry the names |
+| `0x797a20` | `ccUiManager::Ctrl` | a second function registered under the same string; the Storm lineage's `ccUiManager::Ctrl` is `0x7977d0`, which now carries it. What `0x797a20` is stays open |
+
+**dlmalloc, corrected by hand** (method `manual`). Most 1.4.2 names in this range sat one function away from
+the right body. They are now identified from the bodies and the call graph (dlmalloc 2.8: mparams magic `0x58585858`, 0x390-byte mstate):
+
+| Address | Was | Now |
+|---|---|---|
+| `0x75dd20` | `mspace_free` | `init_mparams` |
+| `0x75e350` | `mspace_malloc` | `internal_realloc` |
+| `0x75f160` | `dlmalloc` | `tmalloc_large` (medium) |
+| `0x75f6b0` | `dlfree` | `tmalloc_small` (medium) |
+| `0x7601f0` | `mspace_memalign` | `dlmalloc` |
+| `0x7605a0` | `nsts_AlignedAlloc_NX` | `mspace_calloc` |
+| `0x75df40` | `Nucc::Memory::GetExclusion` | `internal_malloc_stats` (prints dlmalloc's "max system bytes" lines) |
+| `0x760fd0` | `Nucc::Memory::SystemMemoryFree` | `mspace_malloc_stats` (medium) |
+
+New: `mspace_malloc` `0x760c90`, `mspace_free` `0x760620`, `dlfree` `0x75faf0`, `mspace_memalign` `0x761010`,
+`internal_memalign` `0x75e0e0`, `mspace_realloc` `0x761020`, `create_mspace_with_base` `0x75f980`,
+`init_user_mstate` `0x75de30` (medium). The Storm builds' dlmalloc names probably carry the same shift: this
+release does not change them.
+
+**20 new matched names.** The match was re-run with BSim queries limited to one reference build at a time, plus slot-by-slot
+vtable alignment. That gave 33 new candidates, and all 33 went through a blind review:
+- 28 were judged correct (85%) and 5 wrong; only the 28 were kept.
+- 8 of those 28 are Bullet, tolua++ or libc++ names. JJASBR links none of these, so they were dropped.
+- 10 of the 20 come from vtable slots (new method `<ref>-vtable`, mostly destructors); the other 10 from the usual
+  vote (UI, pad, layer, curl).
+
+Still open: whether the Storm packages have the same task-registrar and dlmalloc errors.
+
+Totals: **140,039 names across the 10 Storm builds**, 144,195 with JoJo All-Star Battle R.
+
 ## 1.4.2 (2026-11-16)
 
 **Storm 1 PC: seven Framework and nuccSys names corrected.** Hand-verified against the exe and the Switch Trilogy

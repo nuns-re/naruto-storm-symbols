@@ -1,12 +1,12 @@
 # CyberConnect2 game function names for modders
 
 Function names for CyberConnect2's NARUTO SHIPPUDEN: Ultimate Ninja STORM games on PC (Storm 1, 2, 3 HD, 3 Full
-Burst, Revolution, 4, Connections), the Xbox 360 retail Storm Generations, and a partial, high-confidence set for
-JoJo's Bizarre Adventure: All-Star Battle R. Load them into Ghidra, IDA, Binary Ninja, x64dbg, WinDbg or Visual
+Burst, Revolution, 4, Connections), the Xbox 360 retail Storm Generations, and a partial, high- and medium-confidence
+set for JoJo's Bizarre Adventure: All-Star Battle R. Load them into Ghidra, IDA, Binary Ninja, x64dbg, WinDbg or Visual
 Studio, and `FUN_1401a2b30` becomes `ccPlayer::Update`.
 
 The Storm builds contain 140,039 names across 10 builds, and JoJo's Bizarre Adventure: All-Star Battle R
-adds 4,117 more, for **144,156 across 11 builds**. The Storm names were recovered by:
+adds 4,156 more, for **144,195 across 11 builds**. The Storm names were recovered by:
 
 - matching against the Nintendo Switch *Storm Trilogy* build, which shipped with C++ symbols;
 - bridging those symbols through the stripped Switch builds of Storm 4 and Connections (same compiler) to the PC
@@ -60,23 +60,27 @@ be wrong at almost every address, so the scripts refuse to apply them.
 | Storm 4 PC release (NSUNS4.exe) | `storm4/147e52a3e0d7…` | 61,105 | 14,407 | 24% | 7,526 | 4,525 | 2,356 | 0 |
 | Storm Connections PC (NSUNSC.exe) | `connections/cecf0405b5ac…` | 105,435 | 18,932 | 18% | 8,700 | 7,246 | 2,986 | 380 |
 | Storm Generations Xbox 360 retail (default.xex, USA) | `generations/0d09e0b47270…` | 21,633 | 3,160 | 15% | 1,239 | 1,267 | 654 | 10 |
-| JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe) | `jjasbr/4d6044d50cc4…` | 73,928 | 4,117 | 5.6% | 4,117 | 0 | 0 | 139 |
+| JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe) | `jjasbr/4d6044d50cc4…` | 73,928 | 4,156 | 5.6% | 4,142 | 14 | 0 | 157 |
 
 *Self-named* means the exe itself contains the function's name string, so it is the official name. The full
 SHA-256 of each build is its folder name and is also in its `meta.json`.
 
-The JJASBR entry is partial and high-confidence only. JJASBR has no RTTI for its own classes, so the vtable
-route used for Connections is not available. The names come from two sources:
+The JJASBR entry is partial: high confidence, plus 14 medium names since 1.4.3 (no low names). JJASBR has no RTTI
+for its own classes, so the RTTI vtable route used for Connections is not available. The names come from three
+sources:
 
-- **Its own strings (139, self-named).** The game registers per-frame tasks by name with a function pointer
+- **Its own strings (157, self-named).** The game registers per-frame tasks by name with a function pointer
   (`RegisterTask(obj, "ccPlayer::StoreDamage", prio, mask, obj, &fn)`), and its UI classes pass their own
   `"<Class>::Ctrl"` / `"<Class>::Draw"` task names to their constructors, which name both. These cover
-  JoJo's own code too (`ccUiTitle::ccUiTitle`, `ccPlayerExclude::CalculateCtrl`).
-- **Matching against eight Storm builds (3,869).** Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections
+  JoJo's own code too (`ccUiTitle::ccUiTitle`, `ccPlayerExclude::CalculateCtrl`). 19 of them came from a community
+  contribution in 1.4.3 (ArcherOfLegend, `contrib/jjasbr/`).
+- **Hand-checked (16, `manual`).** The dlmalloc functions, identified from their bodies in 1.4.3.
+- **Matching against eight Storm builds (3,983).** Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections
   and the Switch Trilogy, by unique shared strings, BSim and call-graph position, then a vote across games. A
   name is kept only if it rests on a shared string, on BSim similarity ≥ 0.9 with the same name in 2+ builds,
   or on a BSim match of a function of 64+ bytes whose class is shared engine or library code, or exists in
-  JJASBR's own source-file list.
+  JJASBR's own source-file list. Since 1.4.3 a few also come from aligning JoJo vtables slot by slot with Storm 4
+  and Connections vtables (`<ref>-vtable`); those were each judged correct in a blind review.
 
 Both games pass `__FILE__` to their allocator, so each exe lists its source files; paths under `system\` are
 the shared engine (`nucc`, `ccFramework`). Names of classes that exist only in Storm game code are dropped, as are
@@ -205,6 +209,7 @@ Cheat Engine, ReClass, radare2/rizin, Frida scripts, your own tools, and also th
 | `register-task` / `register-ctor` (JJASBR) | the exe registers the function as a task under this name, or the function is the constructor its callers hand their own `"<Class>::Ctrl"`/`"<Class>::Draw"` task names (official) |
 | `<ref>-string` / `<ref>-bsim` / `<ref>-similar` / `<ref>-callgraph` (JJASBR) | matched to reference build `<ref>` — `s1`, `s2`, `s3hd`, `s4` (release), `s4d` (debug 1.06), `rev`, `conn`, `switch` — by shared unique string, BSim, call-graph similarity voting or call-graph position; `evidence` holds the reference address. One row lists every build that agreed; `sources` counts them |
 | `bsim-consensus` (JJASBR) | BSim similarity ≥ 0.9 to functions with the same name in 2+ reference builds, and no competing name |
+| `<ref>-vtable` (JJASBR) | the JoJo vtable was aligned slot by slot with a reference build's vtable of the same layout, and the name sits in the same slot; `evidence` gives the reference function, vtable and slot |
 | `jojo-switch-bridge` (JJASBR) | an existing lower-confidence match was reached a second way: Switch Trilogy to JoJo All-Star Battle R on Switch to this exe, with the same name |
 | `mobile-symbol` | the Storm 1 mobile (Android arm64) build's exported C++ symbols, carried to the PC builds by strings, BSim or call-graph position |
 | `vtable` | virtual function: the PC vtable lined up slot by slot with the Switch build's named vtable |
