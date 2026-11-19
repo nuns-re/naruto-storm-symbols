@@ -6,7 +6,7 @@ set for JoJo's Bizarre Adventure: All-Star Battle R. Load them into Ghidra, IDA,
 Studio, and `FUN_1401a2b30` becomes `ccPlayer::Update`.
 
 The Storm builds contain 140,039 names across 10 builds, and JoJo's Bizarre Adventure: All-Star Battle R
-adds 4,156 more, for **144,195 across 11 builds**. The Storm names were recovered by:
+adds 7,180 more, for **147,219 across 11 builds**. The Storm names were recovered by:
 
 - matching against the Nintendo Switch *Storm Trilogy* build, which shipped with C++ symbols;
 - bridging those symbols through the stripped Switch builds of Storm 4 and Connections (same compiler) to the PC
@@ -60,13 +60,13 @@ be wrong at almost every address, so the scripts refuse to apply them.
 | Storm 4 PC release (NSUNS4.exe) | `storm4/147e52a3e0d7…` | 61,105 | 14,407 | 24% | 7,526 | 4,525 | 2,356 | 0 |
 | Storm Connections PC (NSUNSC.exe) | `connections/cecf0405b5ac…` | 105,435 | 18,932 | 18% | 8,700 | 7,246 | 2,986 | 380 |
 | Storm Generations Xbox 360 retail (default.xex, USA) | `generations/0d09e0b47270…` | 21,633 | 3,160 | 15% | 1,239 | 1,267 | 654 | 10 |
-| JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe) | `jjasbr/4d6044d50cc4…` | 73,928 | 4,156 | 5.6% | 4,142 | 14 | 0 | 157 |
+| JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe) | `jjasbr/4d6044d50cc4…` | 73,928 | 7,180 | 9.7% | 7,093 | 87 | 0 | 157 |
 
 *Self-named* means the exe itself contains the function's name string, so it is the official name. The full
 SHA-256 of each build is its folder name and is also in its `meta.json`.
 
-The JJASBR entry is partial: high confidence, plus 14 medium names since 1.4.3 (no low names). JJASBR has no RTTI
-for its own classes, so the RTTI vtable route used for Connections is not available. The names come from three
+The JJASBR entry is partial: high confidence, plus 87 medium names (no low names). JJASBR has no RTTI
+for its own classes, so the RTTI vtable route used for Connections is not available. The names come from five
 sources:
 
 - **Its own strings (157, self-named).** The game registers per-frame tasks by name with a function pointer
@@ -75,6 +75,13 @@ sources:
   JoJo's own code too (`ccUiTitle::ccUiTitle`, `ccPlayerExclude::CalculateCtrl`). 19 of them came from a community
   contribution in 1.4.3 (ArcherOfLegend, `contrib/jjasbr/`).
 - **Hand-checked (16, `manual`).** The dlmalloc functions, identified from their bodies in 1.4.3.
+- **Open-source libraries built from source (2,951).** OpenSSL 3.1.0 (2,918, `lib-openssl310`) and Lua 5.1.4 (33,
+  `lib-lua`), compiled with MSVC using the exe's own OpenSSL compiler flags (`cl /Zi /MT /Zl /Gs0 /GF /Gy /W3 /O2`,
+  no assembly), and matched by BSim against the reference builds' PDB names. OpenSSL names are only placed inside
+  the exe's OpenSSL code. Since 1.4.4.
+- **Source-file matches (73, medium, `srcfile`).** BSim matches to a Storm build whose class matches the source file
+  the exe places the function in. The source-file map comes from ArcherOfLegend's ASBR map, built from the
+  `__FILE__` paths the exe kept. Since 1.4.4.
 - **Matching against eight Storm builds (3,983).** Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections
   and the Switch Trilogy, by unique shared strings, BSim and call-graph position, then a vote across games. A
   name is kept only if it rests on a shared string, on BSim similarity ≥ 0.9 with the same name in 2+ builds,
@@ -86,7 +93,7 @@ Both games pass `__FILE__` to their allocator, so each exe lists its source file
 the shared engine (`nucc`, `ccFramework`). Names of classes that exist only in Storm game code are dropped, as are
 constructors and destructors without a string anchor (sibling constructors compile to identical code), names
 from libraries JJASBR does not link (Bullet, tolua++) and libc++ spellings from the Switch build. Any name
-landing on more than one function is dropped. Most names are CRIWARE, `nucc` engine, `cc*` framework, Lua,
+landing on more than one function is dropped. Most names are OpenSSL, CRIWARE, `nucc` engine, `cc*` framework, Lua,
 curl, Recast/Detour and NintendoWare (`numm`/`nus3`).
 
 ## Confidence: what gets applied how
@@ -211,12 +218,13 @@ Cheat Engine, ReClass, radare2/rizin, Frida scripts, your own tools, and also th
 | `bsim-consensus` (JJASBR) | BSim similarity ≥ 0.9 to functions with the same name in 2+ reference builds, and no competing name |
 | `<ref>-vtable` (JJASBR) | the JoJo vtable was aligned slot by slot with a reference build's vtable of the same layout, and the name sits in the same slot; `evidence` gives the reference function, vtable and slot |
 | `jojo-switch-bridge` (JJASBR) | an existing lower-confidence match was reached a second way: Switch Trilogy to JoJo All-Star Battle R on Switch to this exe, with the same name |
+| `srcfile` (JJASBR) | the reference name's class matches the source file the exe places the function in (its kept `__FILE__` paths; map by ArcherOfLegend); used with a BSim match |
 | `mobile-symbol` | the Storm 1 mobile (Android arm64) build's exported C++ symbols, carried to the PC builds by strings, BSim or call-graph position |
 | `vtable` | virtual function: the PC vtable lined up slot by slot with the Switch build's named vtable |
 | `rtti-vtable` | the same, with the PC vtable's class known from its own RTTI (Connections) |
 | `export` | the exe's own export table (exact) |
 | `runtime-msvcr120`, `runtime-msvcp100`, … | Microsoft C/C++ runtime, matched against the same runtime version with Microsoft's public symbols |
-| `lib-lua`, `lib-bullet`, `lib-tolua`, `lib-zlib`, `lib-zlib1211`, `lib-curlfull`, `lib-curl7501` (older data: `lib-curl`) | open-source library built from source with the same compiler, matched by BSim: Lua, Bullet, tolua++, zlib 1.2.7 / 1.2.11, curl 7.29.0 with every protocol the games ship, curl 7.50.1 (Connections). Each build is matched only against the libraries it links (see below) |
+| `lib-lua`, `lib-bullet`, `lib-tolua`, `lib-zlib`, `lib-zlib1211`, `lib-curlfull`, `lib-curl7501`, `lib-openssl310` (older data: `lib-curl`) | open-source library built from source with the same compiler, matched by BSim: Lua, Bullet, tolua++, zlib 1.2.7 / 1.2.11, curl 7.29.0 with every protocol the games ship, curl 7.50.1 (Connections), OpenSSL 3.1.0 (JJASBR, built with the exe's own compiler flags). Each build is matched only against the libraries it links (see below) |
 | `fill-callees` / `fill-caller` | call-graph fill: unnamed callees paired in call order when both sides have the same count, or a lone unnamed caller on each side |
 | `fill-similar` | call-graph fill by voting: matched callers and callees vote for pairings of unnamed neighbours, accepted only when the pair is mutual-best, wins by a margin and has 2+ votes (or 1 vote plus BSim similarity ≥ 0.5); tolerates inlining. `evidence` holds the Switch counterpart's address |
 | `… > string` / `> bsim` / `> callgraph` / `> similar` | carried over from another PC build of the series, by shared unique strings, BSim, call-graph position or code similarity |
@@ -248,6 +256,13 @@ reference build carries a wrong name. About 2,640 lower-confidence JJASBR names 
 published. The 109 `jojo-switch-bridge` names were medium-confidence matches that a separate route through JoJo
 All-Star Battle R on Switch confirmed; 15 of 16 sampled were judged correct, a small sample.
 
+1.4.4 added two JJASBR routes, each checked by blind review of 15 sampled matches per group.
+- **OpenSSL:** 90 of 90 judged correct across six groups (similarity ≥ 0.95 down to below 0.7, and functions under
+  64 bytes). The reviewer cited OpenSSL's own error codes and source-file strings.
+- **Lua:** 14 of 15 correct. The miss was a C runtime inline (`fprintf`) that every object file carries.
+- **Source-file matches:** the group published as medium scored 25 of 30. Four of its five misses were under 64 bytes,
+  and functions that small are filtered out. Three related groups scored 53–73% and are not published.
+
 ### Which libraries each build links
 
 Checked from version and error strings, zlib's inflate/deflate tables and Bullet's `1e18f` constant. Library names
@@ -260,7 +275,7 @@ are matched only into builds that link the library.
 | Storm 3 Full Burst, Revolution, Generations | Lua, tolua++ |
 | Storm 4 (debug and release) | Lua, tolua++, Bullet, zlib 1.2.7, curl 7.29.0 |
 | Connections | Lua, tolua++, Bullet, zlib 1.2.7 + 1.2.11, curl 7.50.1 (Schannel) |
-| JoJo's All-Star Battle R | Lua 5.1.4, zlib 1.2.11, curl 7.79.0-DEV, Recast/Detour, rapidxml, CRIWARE; no Bullet (no `1e18f` constant) and no tolua++ |
+| JoJo's All-Star Battle R | Lua 5.1.4, zlib 1.2.11, curl 7.79.0-DEV, OpenSSL 3.1.0-dev (static, no assembly), Recast/Detour, rapidxml, CRIWARE; no Bullet (no `1e18f` constant) and no tolua++ |
 
 ## Platform-call annotations (`platform-calls/`)
 

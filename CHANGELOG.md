@@ -1,5 +1,70 @@
 # Changelog
 
+## 1.4.4 (2026-11-19)
+
+**JoJo's Bizarre Adventure: All-Star Battle R: OpenSSL, more Lua, and source-file matches.**
+The `jjasbr` set goes from 4,156 to **7,180 names** (7,093 high, 87 medium), 9.7% of the exe's 73,928 functions.
+Storm data is unchanged. Totals: 140,039 names across the 10 Storm builds, **147,219** with JoJo All-Star Battle R.
+
+**OpenSSL (2,918 names, high, `lib-openssl310`).** The exe links OpenSSL statically.
+- **Reference build:** we built OpenSSL 3.1.0 from the official source with MSVC, with no assembly and the exe's own
+  compiler line (`cl /Zi /MT /Zl /Gs0 /GF /Gy /W3 /wd4090 /O2 -DL_ENDIAN -DOPENSSL_PIC`, kept in its strings). The
+  result is a DLL with a PDB, 7,896 functions.
+- **Version:** the exe also carries a `3.1.0-dev` version string, so its copy predates the 3.1.0 release slightly.
+  Functions that changed before release simply don't match.
+- **Matching:** BSim against the reference's PDB names.
+  - Only names that OpenSSL's own object files define are used, so C runtime names are excluded.
+  - OpenSSL names are placed only inside the exe's OpenSSL code, so matches that landed on curl, CRIWARE and game
+    functions were rejected.
+  - A JoJo function whose best reference function was claimed more strongly by another JoJo function, or tied with
+    one, was left unnamed (1,848 candidates).
+  - Existing package names were not replaced. 7 of them sit inside the OpenSSL code and disagree with the OpenSSL match;
+    they are listed below as open questions.
+- **Review:** 90 of 90 sampled matches were judged correct in a blind review, across similarity from ≥ 0.95 down to
+  below 0.7, plus functions under 64 bytes.
+- **Coverage:** 2,918 of the roughly 6,900 functions in the exe's OpenSSL code.
+
+**Lua 5.1.4 (33 names, high, `lib-lua`).** Lua 5.1.4 built from source with MSVC and matched the same way. The blind
+review judged 14 of 15 correct; the miss was `fprintf`, a C runtime inline that every object file carries.
+
+**Source-file matches (73 names, medium, `srcfile`).**
+- **Method:** BSim matches to a Storm build, accepted only where the reference name's class matches the source file the
+  exe places the function in. The source-file map is ArcherOfLegend's ASBR map, built from the `__FILE__` paths the
+  exe kept. Thanks again.
+- **Review:** the group scored 25 of 30, so it ships as medium. Four of its five misses were under 64 bytes, and such
+  functions are left out.
+- **Constructors and destructors:** the package normally drops these without a string anchor. Here the source-file
+  check plays that role, and 12 of 13 sampled were correct, so they are kept.
+- **Not published:** three related groups scored 53–73%: existing medium/low names this confirmed, names supported
+  only by the file, and new medium matches.
+
+zlib 1.2.11 was built too; it added no new names.
+
+Open: inside the OpenSSL code, 7 existing package names disagree with the OpenSSL match. The package names, from Storm
+matching, stay until checked by hand:
+
+| Address | Package name | OpenSSL match |
+|---|---|---|
+| `0x858ae0` | `ccCommandHelp::Draw` | `X509V3_extensions_print` (BSim 0.737) |
+| `0x87cdf0` | `curl_strnequal` | `openssl_strerror_r` (BSim 1.000) |
+| `0x8b4ec0` | `Curl_protocol_getsock` | `X509_CRL_verify` (BSim 1.000) |
+| `0x8be8c0` | `Curl_sspi_strerror` | `i2v_AUTHORITY_INFO_ACCESS` (BSim 0.657) |
+| `0x8c7110` | `UnDecorator::getTemplateConstant` | `asn1_primitive_print` (BSim 0.709) |
+| `0x949da0` | `ccUiCommandList::Command::SetAllAlpha` | `HMAC_CTX_set_flags` (BSim 0.724) |
+| `0x9555c0` | `nuccIpcMessage_DestroyQueueAll` | `ossl_store_destroy_loaders_int` (BSim 1.000) |
+
+
+Also open: in five places a library match disagrees with where the package already uses that name. The package name stays
+for now:
+
+| Name | In the package at | Library match at |
+|---|---|---|
+| `lua_toboolean` | `0x675e80` | `0x675d10` |
+| `currentline` | `0x67e720` | `0x67e6c0` |
+| `luaL_loadbuffer` | `0x676f50` | `0x692064` |
+| `read_string` (Lua and OpenSSL both have one) | `0x67c310` | `0x8740b0` |
+| `conn_free` | `0x806c90` | `0x8f58a0` |
+
 ## 1.4.3 (2026-11-19)
 
 **JoJo's Bizarre Adventure: All-Star Battle R: a community contribution, corrected allocator names and 20 new names.**
