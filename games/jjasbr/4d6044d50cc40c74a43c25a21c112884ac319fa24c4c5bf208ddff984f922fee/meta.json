@@ -5,12 +5,12 @@
  "image_base": "0x140000000",
  "pe_timestamp": 1704780675,
  "functions_in_exe": 73928,
- "named": 7180,
- "named_high": 7093,
- "named_medium": 87,
+ "named": 8095,
+ "named_high": 7087,
+ "named_medium": 1008,
  "named_low": 0,
  "self_named": 157,
  "generated": "2026-11-19",
  "address_kind": "RVA (add image_base for VA)",
- "note": "Partial set, high and medium confidence (no low). Self-named: task-registration and constructor strings in this exe. Others: matched against eight Storm reference builds (Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections, Switch Trilogy) by unique shared strings, BSim and call graph, then voted; a name is kept only if it rests on a shared string, BSim agreement across 2+ builds, or a BSim match on a function of 64+ bytes whose class is shared engine/library code or exists in this exe's own source-file list. Names of Naruto-only classes, constructors/destructors without a string or vtable anchor, and names from libraries this exe does not link (Bullet, tolua++, libc++) are dropped. Blind review of an 80-name held-out sample: 90% correct. 109 names were also confirmed through the JoJo Switch build (jojo-switch-bridge). 1.4.3: community task-registration names (ArcherOfLegend, method register-task), dlmalloc names corrected by hand (manual), and 20 per-build BSim / vtable-slot matches each judged correct in a blind review. 1.4.4: OpenSSL 3.1.0 and Lua 5.1.4 built from source with MSVC and matched by BSim (lib-openssl310, lib-lua; OpenSSL names only inside the exe's OpenSSL code range), and 73 medium names from BSim matches whose class matches the source file the exe places the function in (srcfile; source-file map by ArcherOfLegend)."
+ "note": "Partial set, high and medium confidence (no low). Self-named: task-registration and constructor strings in this exe. Others: matched against eight Storm reference builds (Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections, Switch Trilogy) by unique shared strings, BSim and call graph, then voted; a name is kept only if it rests on a shared string, BSim agreement across 2+ builds, or a BSim match on a function of 64+ bytes whose class is shared engine/library code or exists in this exe's own source-file list. Names of Naruto-only classes, constructors/destructors without a string or vtable anchor, and names from libraries this exe does not link (Bullet, tolua++, libc++) are dropped. Blind review of an 80-name held-out sample: 90% correct. 109 names were also confirmed through the JoJo Switch build (jojo-switch-bridge). 1.4.3: community task-registration names (ArcherOfLegend, method register-task), dlmalloc names corrected by hand (manual), and 20 per-build BSim / vtable-slot matches each judged correct in a blind review. 1.4.4: OpenSSL 3.1.0 and Lua 5.1.4 built from source with MSVC and matched by BSim (lib-openssl310, lib-lua; OpenSSL names only inside the exe's OpenSSL code range), and 73 medium names from BSim matches whose class matches the source file the exe places the function in (srcfile; source-file map by ArcherOfLegend). 1.4.5: 921 more OpenSSL names (medium) from a reference build linked without /OPT:REF or /OPT:ICF, with ties broken by call-graph agreement (callgraph); six Storm-matched names inside the OpenSSL code replaced by their OpenSSL names and six removed."
 }

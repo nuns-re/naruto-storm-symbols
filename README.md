@@ -6,7 +6,7 @@ set for JoJo's Bizarre Adventure: All-Star Battle R. Load them into Ghidra, IDA,
 Studio, and `FUN_1401a2b30` becomes `ccPlayer::Update`.
 
 The Storm builds contain 140,039 names across 10 builds, and JoJo's Bizarre Adventure: All-Star Battle R
-adds 7,180 more, for **147,219 across 11 builds**. The Storm names were recovered by:
+adds 8,095 more, for **148,134 across 11 builds**. The Storm names were recovered by:
 
 - matching against the Nintendo Switch *Storm Trilogy* build, which shipped with C++ symbols;
 - bridging those symbols through the stripped Switch builds of Storm 4 and Connections (same compiler) to the PC
@@ -60,12 +60,12 @@ be wrong at almost every address, so the scripts refuse to apply them.
 | Storm 4 PC release (NSUNS4.exe) | `storm4/147e52a3e0d7…` | 61,105 | 14,407 | 24% | 7,526 | 4,525 | 2,356 | 0 |
 | Storm Connections PC (NSUNSC.exe) | `connections/cecf0405b5ac…` | 105,435 | 18,932 | 18% | 8,700 | 7,246 | 2,986 | 380 |
 | Storm Generations Xbox 360 retail (default.xex, USA) | `generations/0d09e0b47270…` | 21,633 | 3,160 | 15% | 1,239 | 1,267 | 654 | 10 |
-| JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe) | `jjasbr/4d6044d50cc4…` | 73,928 | 7,180 | 9.7% | 7,093 | 87 | 0 | 157 |
+| JoJo's Bizarre Adventure: All-Star Battle R PC (JJASBR.exe) | `jjasbr/4d6044d50cc4…` | 73,928 | 8,095 | 11% | 7,087 | 1,008 | 0 | 157 |
 
 *Self-named* means the exe itself contains the function's name string, so it is the official name. The full
 SHA-256 of each build is its folder name and is also in its `meta.json`.
 
-The JJASBR entry is partial: high confidence, plus 87 medium names (no low names). JJASBR has no RTTI
+The JJASBR entry is partial: high confidence, plus 1,008 medium names (no low names). JJASBR has no RTTI
 for its own classes, so the RTTI vtable route used for Connections is not available. The names come from five
 sources:
 
@@ -74,15 +74,19 @@ sources:
   `"<Class>::Ctrl"` / `"<Class>::Draw"` task names to their constructors, which name both. These cover
   JoJo's own code too (`ccUiTitle::ccUiTitle`, `ccPlayerExclude::CalculateCtrl`). 19 of them came from a community
   contribution in 1.4.3 (ArcherOfLegend, `contrib/jjasbr/`).
-- **Hand-checked (16, `manual`).** The dlmalloc functions, identified from their bodies in 1.4.3.
-- **Open-source libraries built from source (2,951).** OpenSSL 3.1.0 (2,918, `lib-openssl310`) and Lua 5.1.4 (33,
+- **Hand-checked (16, `manual`).** The dlmalloc functions, identified from their bodies in 1.4.3. Six more
+  (`manual;lib-openssl310`, 1.4.5) replaced Storm-matched names inside the OpenSSL code; each has OpenSSL strings or
+  callers and was judged correct in a blind review.
+- **Open-source libraries built from source (3,878).** OpenSSL 3.1.0 (3,845, `lib-openssl310`) and Lua 5.1.4 (33,
   `lib-lua`), compiled with MSVC using the exe's own OpenSSL compiler flags (`cl /Zi /MT /Zl /Gs0 /GF /Gy /W3 /O2`,
   no assembly), and matched by BSim against the reference builds' PDB names. OpenSSL names are only placed inside
-  the exe's OpenSSL code. Since 1.4.4.
+  the exe's OpenSSL code. Since 1.4.4. In 1.4.5, 921 more OpenSSL names (medium) came from a reference build linked
+  without `/OPT:REF` or `/OPT:ICF`, with ties between equal-scoring candidates broken by call-graph agreement
+  (`lib-openssl310;callgraph`).
 - **Source-file matches (73, medium, `srcfile`).** BSim matches to a Storm build whose class matches the source file
   the exe places the function in. The source-file map comes from ArcherOfLegend's ASBR map, built from the
   `__FILE__` paths the exe kept. Since 1.4.4.
-- **Matching against eight Storm builds (3,983).** Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections
+- **Matching against eight Storm builds (3,971).** Storm 1, 2, 3 HD, 4 release and debug, Revolution, Connections
   and the Switch Trilogy, by unique shared strings, BSim and call-graph position, then a vote across games. A
   name is kept only if it rests on a shared string, on BSim similarity ≥ 0.9 with the same name in 2+ builds,
   or on a BSim match of a function of 64+ bytes whose class is shared engine or library code, or exists in
@@ -229,6 +233,7 @@ Cheat Engine, ReClass, radare2/rizin, Frida scripts, your own tools, and also th
 | `fill-similar` | call-graph fill by voting: matched callers and callees vote for pairings of unnamed neighbours, accepted only when the pair is mutual-best, wins by a margin and has 2+ votes (or 1 vote plus BSim similarity ≥ 0.5); tolerates inlining. `evidence` holds the Switch counterpart's address |
 | `… > string` / `> bsim` / `> callgraph` / `> similar` | carried over from another PC build of the series, by shared unique strings, BSim, call-graph position or code similarity |
 | `manual` | hand-verified (the evidence column says how) |
+| `callgraph` (JJASBR, with `lib-openssl310`) | a library name chosen among BSim candidates by call-graph agreement with already named neighbours, or placed by call position under an already matched caller; `evidence` says which |
 | `+llm-verified` | an AI review compared the two decompilations and agreed |
 | `+llm-disputed` | an AI review judged the match wrong; kept as a low-confidence comment, because many such calls turned out to be version differences |
 
@@ -260,6 +265,11 @@ All-Star Battle R on Switch confirmed; 15 of 16 sampled were judged correct, a s
 - **OpenSSL:** 90 of 90 judged correct across six groups (similarity ≥ 0.95 down to below 0.7, and functions under
   64 bytes). The reviewer cited OpenSSL's own error codes and source-file strings.
 - **Lua:** 14 of 15 correct. The miss was a C runtime inline (`fprintf`) that every object file carries.
+
+1.4.5 resolved the OpenSSL matches 1.4.4 had left out as ties, using the call graph. Hiding 20% of the 1.4.4 OpenSSL
+names and re-deriving them recovered 565 of 570 correctly. The blind review was stricter: BSim 13 of 15, call-graph
+choice 13 of 15, call position (64+ bytes) 13 of 15, so these ship as medium. Call position under 64 bytes scored
+11 of 15 and is not published. Most misses were tiny wrappers the reviewer could not tell apart.
 - **Source-file matches:** the group published as medium scored 25 of 30. Four of its five misses were under 64 bytes,
   and functions that small are filtered out. Three related groups scored 53–73% and are not published.
 

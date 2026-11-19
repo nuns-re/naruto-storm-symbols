@@ -1,5 +1,62 @@
 # Changelog
 
+## 1.4.5 (2026-11-19)
+
+**JoJo's Bizarre Adventure: All-Star Battle R: more OpenSSL, and the open OpenSSL questions settled.**
+The `jjasbr` set goes from 7,180 to **8,095 names** (7,087 high, 1,008 medium), 11% of the exe's 73,928 functions.
+Storm data is unchanged. Totals: 140,039 names across the 10 Storm builds, **148,134** with JoJo All-Star Battle R.
+
+**OpenSSL (921 new names, medium).**
+- **Fuller reference:** the 1.4.4 reference DLL was linked with `/OPT:REF /OPT:ICF`. That dropped unused functions
+  and folded identical ones under one name. It is now relinked with `/OPT:NOREF /OPT:NOICF` and every object file
+  kept, so every OpenSSL function has its own address and name.
+- **Ties settled by the call graph** (`lib-openssl310;callgraph`). 1.4.4 left out 1,848 candidates that tied with
+  another function or were claimed more strongly by one. Three rules now settle them, repeated until nothing changes:
+  - BSim names that became clear once competitors were named (`lib-openssl310`);
+  - a BSim candidate chosen because its callers and callees agree with already named neighbours;
+  - a function placed by its call position under a caller that is already matched.
+- **Check on hidden names:** 20% of the 1.4.4 OpenSSL names were hidden and re-derived. 565 of 570 came back right.
+- **Blind review**, 15 sampled per group:
+  - BSim: 13 of 15 correct.
+  - Call-graph choice: 13 of 15.
+  - Call position, functions of 64 bytes or more: 13 of 15.
+  - These groups ship as medium.
+  - Call position under 64 bytes scored 11 of 15 and is not published (594 names).
+- Two candidates were dropped because a function holding a non-OpenSSL name scored as well for the same reference.
+
+**Storm-matched names inside the OpenSSL code.**
+- The 1.4.4 open table listed 7 such names that disagreed with the OpenSSL match. A wider search found 13.
+- Each was checked by hand: the strings, callers, callees and source file named in the exe's `__FILE__` paths.
+- Each OpenSSL name was then blind reviewed.
+
+Replaced (`manual;lib-openssl310`, high):
+
+| Address | Was | Now | Evidence |
+|---|---|---|---|
+| `0x858ae0` | `ccCommandHelp::Draw` | `X509V3_extensions_print` | prints the "critical" extension strings |
+| `0x87cdf0` | `curl_strnequal` | `openssl_strerror_r` | `o_str.c`; called by `ossl_err_string_int` |
+| `0x8be8c0` | `Curl_sspi_strerror` | `i2v_AUTHORITY_INFO_ACCESS` | uses the AIA literal |
+| `0x8c7110` | `UnDecorator::getTemplateConstant` | `asn1_primitive_print` | `tasn_prn.c` |
+| `0x949da0` | `ccUiCommandList::Command::SetAllAlpha` | `HMAC_CTX_set_flags` | called by `hmac_set_ctx_params` |
+| `0x9555c0` | `nuccIpcMessage_DestroyQueueAll` | `ossl_store_destroy_loaders_int` | calls `OPENSSL_LH_free` on the loader table |
+
+Removed: the code is OpenSSL, but no single OpenSSL name is certain:
+
+| Address | Was | Why |
+|---|---|---|
+| `0x8b4ec0` | `Curl_protocol_getsock` | `X509_CRL_verify` ties with `X509_CRL_get0_by_serial`; the review judged it wrong |
+| `0x982a70` | `emCmd_World` | `provider_conf.c` strings |
+| `0x930450` | `CriMvEasyPlayer::SetFile` | `asn1_gen.c`; calls `CONF_parse_list` |
+| `0xa06000` | `mmScriptNodeXML::IsComment` | calls `CRYPTO_gcm128_aad` |
+| `0x847220` | `BattleResultBonus::Group::Penalty::Retry` | `bio_lib.c` |
+| `0x89a7f0` | `ccStageObjectList::AddClump` | calls `0x847220` |
+
+Kept: `0x86f210` `criAtomConfig_Finalize`. BSim also scores it 1.000 against `ossl_init_no_config_ossl_`, but so does
+another function, so the evidence is not decisive.
+
+Still open: the five library names from 1.4.4 that the package already uses at another address (`lua_toboolean`,
+`currentline`, `luaL_loadbuffer`, `read_string`, `conn_free`).
+
 ## 1.4.4 (2026-11-19)
 
 **JoJo's Bizarre Adventure: All-Star Battle R: OpenSSL, more Lua, and source-file matches.**
